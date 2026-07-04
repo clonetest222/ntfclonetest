@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netflix Link Manager</title>
+<style>
+  :root{
+    --bg:#0b0b0f; --panel:#16161d; --panel2:#1d1d26; --line:#2a2a36;
+    --text:#f3f3f7; --muted:#9a9aa8; --red:#e50914; --red2:#ff2b36;
+    --green:#39d98a; --amber:#f5a524; --blue:#5b8cff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:radial-gradient(1200px 600px at 50% -10%,#1a1a24 0,var(--bg) 60%);
+    color:var(--text); font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:24px 16px 60px}
+  header.top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px; font-size:18px}
+  .brand .dot{width:10px;height:20px;background:var(--red);border-radius:2px;box-shadow:0 0 14px var(--red)}
+  .top-actions{display:flex;gap:8px;align-items:center}
+  .count-pill{background:var(--panel); border:1px solid var(--line); color:var(--muted); padding:6px 12px; border-radius:999px; font-size:12px}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel2);
+    color:var(--text);padding:8px 14px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+  .btn:hover{border-color:#3a3a48;background:#242430}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .btn-sm{padding:6px 11px;font-size:12px}
+  .btn-secondary{background:transparent}
+  .nf-btn-pc{background:linear-gradient(180deg,var(--red2),var(--red));border-color:transparent;color:#fff;
+    box-shadow:0 6px 18px -8px var(--red)}
+  .nf-btn-pc:hover{filter:brightness(1.08)}
+  .btn-copy{background:#20202a}
+  .btn-copy.pc{border-color:#33415f}
+  .btn-copy.mb{border-color:#3a2f52}
+
+  /* card */
+  .nf-link-item{display:flex;gap:16px;justify-content:space-between;
+    background:linear-gradient(180deg,var(--panel),#131319);border:1px solid var(--line);
+    border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden}
+  .nf-link-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+  .nf-link-body{flex:1;min-width:0}
+  .nf-link-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:12px;min-width:120px}
+
+  .nf-link-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .nf-link-label{font-weight:800;font-size:15px}
+  .badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px;letter-spacing:.4px;text-transform:uppercase}
+  .badge-vip{background:linear-gradient(180deg,#ffd76a,#f5a524);color:#3a2600}
+  .badge-std{background:#2b3a55;color:#bcd2ff}
+  .badge-free{background:#333;color:#bbb}
+  .nf-quality-badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;background:#12233a;color:#7fd1ff;border:1px solid #1e3a5c}
+  .nf-link-country{font-size:12px;color:var(--muted);margin-left:auto}
+
+  .nf-link-stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;color:var(--muted);font-size:12px}
+  .nf-stat{display:inline-flex;align-items:center;gap:6px}
+  .nf-stat strong{color:var(--text)}
+  .nf-stat svg{color:var(--muted)}
+
+  .nf-link-details{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 18px;margin-bottom:10px}
+  .nf-link-details span{font-size:12.5px;color:#cfcfda;display:flex;gap:6px;min-width:0}
+  .nf-link-details span strong{color:var(--muted);font-weight:600;white-space:nowrap}
+  .nf-link-details span em{font-style:normal;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .nf-verify-line{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11.5px;color:var(--green);
+    border-top:1px dashed var(--line);padding-top:9px}
+  .nf-verify-line svg{color:var(--green)}
+  .nf-verify-line span{color:var(--muted)}
+
+  .nf-load-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px}
+  .nf-load-badge.low{background:#123020;color:var(--green)}
+  .nf-load-badge.mid{background:#3a2f10;color:var(--amber)}
+  .nf-load-badge .load-dot{color:currentColor}
+
+  /* assignment / pending */
+  .nf-assignment{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+    background:#101018;display:flex;flex-direction:column;gap:10px}
+  .nf-assignment.is-pending{border-color:#3a3320;background:#15130c}
+  .nf-assignment.is-done{border-color:#173a28;background:#0d1a12}
+  .nf-assignment.is-error{border-color:#4a1f22;background:#1a0f10}
+  .nf-assignment-info{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12.5px}
+  .nf-assignment-info svg{color:var(--muted)}
+  .nf-assignment-status{display:inline-flex;align-items:center;gap:7px;color:var(--amber)}
+  .nf-assignment.is-done .nf-assignment-status{color:var(--green)}
+  .nf-assignment-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .token-line{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:var(--muted);
+    background:#0a0a10;border:1px solid var(--line);border-radius:7px;padding:7px 9px;word-break:break-all;max-height:60px;overflow:auto}
+
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.25);
+    border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .animate-in{animation:fade .25s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#111;border:1px solid var(--line);
+    color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:0 12px 30px -10px #000;opacity:0;pointer-events:none;transition:.2s}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+  .empty,.error-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
+  .error-box{border-color:#4a1f22;color:#ffb4b4}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+  @media(max-width:640px){.nf-link-item{flex-direction:column}.nf-link-right{flex-direction:row;align-items:center;min-width:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="dot"></span> Netflix Link Manager</div>
+    <div class="top-actions">
+      <span class="count-pill" id="countPill">0 link</span>
+      <button class="btn btn-sm btn-secondary" id="tokenBtn" title="Đổi access token">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"></path><path d="m21 2-9.6 9.6"></path><circle cx="7.5" cy="15.5" r="5.5"></circle></svg>
+        Đổi token
+      </button>
+      <button class="btn btn-sm" id="refreshBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
+        Tải lại
+      </button>
+    </div>
+  </header>
+  <div id="links"><div class="empty">Đang tải…</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// Backend = Supabase Edge Function "netflix-api" (works from GitHub Pages / anywhere).
+const EDGE_URL = "https://wbpjunpcmuvhndnanhgi.supabase.co/functions/v1/netflix-api";
+
+// Access control without login: a shared token entered once, kept in localStorage,
+// sent with every request. Wrong/absent token -> the function returns 401.
+function getAccessToken(){
+  let t = localStorage.getItem("nf_access_token");
+  if(!t){ t = (prompt("Nhập access token để dùng trang này:")||"").trim(); if(t) localStorage.setItem("nf_access_token", t); }
+  return t;
+}
+function resetAccessToken(){ localStorage.removeItem("nf_access_token"); }
+async function apiCall(action, payload){
+  const res = await fetch(EDGE_URL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-access-token":getAccessToken()},
+    body: JSON.stringify({action, ...(payload||{})}),
+  });
+  if(res.status===401){ resetAccessToken(); throw new Error("Sai hoặc thiếu access token. Bấm \"Đổi token\" rồi nhập lại."); }
+  return res;
+}
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1800);}
+
+function maskEmail(email){
+  if(!email||!email.includes("@")) return email||"—";
+  const [u,d]=email.split("@");
+  if(u.length<=3) return u[0]+"***@"+d;
+  return u.slice(0,2)+"***"+u.slice(-1)+"@"+d;
+}
+function flag(cc){
+  if(!cc||cc.length!==2) return "";
+  return cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));
+}
+function shortId(id){ // stable 5-digit label from uuid
+  let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))>>>0;
+  return (h%90000)+10000;
+}
+function planBadge(name,isSub){
+  const n=(name||"").toLowerCase();
+  if(!isSub) return '<span class="badge badge-free">Free</span>';
+  if(n.includes("premium")) return '<span class="badge badge-vip">Premium</span>';
+  if(n.includes("standard")||n.includes("basic")||n.includes("mobile"))
+    return '<span class="badge badge-std">'+esc(name||"Standard")+'</span>';
+  return '<span class="badge badge-vip">'+esc(name||"Premium")+'</span>';
+}
+function yesNo(v){ if(v===true)return "Có"; if(v===false)return "Không"; return v??"—"; }
+function payOk(hold){ if(hold===true||String(hold).toLowerCase()==="yes")return "Hold"; return "Ổn"; }
+
+function detail(label,val){ if(val==null||val==="") return ""; return `<span><strong>${label}</strong><em>${esc(val)}</em></span>`; }
+
+const ICON = {
+  users:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>',
+  clock:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>',
+  check:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>',
+  dot:'<svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="10"></circle></svg>',
+  monitor:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>',
+  x:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>',
+  copy:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>',
+  phone:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"></rect><path d="M12 18h.01"></path></svg>',
+};
+
+function card(row){
+  const el=document.createElement("div");
+  el.className="nf-link-item animate-in";
+  const streams = row.max_streams ?? 4;
+  const details = [
+    detail("Email", maskEmail(row.email)),
+    detail("Gói", row.plan_name),
+    detail("Giá gói", row.plan_price),
+    detail("Quốc gia", row.country),
+    detail("Thành viên", row.member_since),
+    detail("PT thanh toán", row.payment_method),
+    detail("Hồ sơ", row.profiles),
+    detail("Chất lượng", row.video_quality),
+    detail("Gia hạn", row.next_billing_date),
+    detail("Thanh toán", payOk(row.hold_status)),
+    detail("Extra member", yesNo(row.extra_member)),
+    detail("Nguồn", row.source_file),
+  ].join("");
+  const when = row.created_at ? new Date(row.created_at).toLocaleString("vi-VN") : "";
+  el.innerHTML = `
+    <div class="nf-link-body">
+      <div class="nf-link-top">
+        <span class="nf-link-label">Link #${shortId(row.id)}</span>
+        ${planBadge(row.plan_name,row.is_subscribed)}
+        ${row.video_quality?`<span class="nf-quality-badge">${esc(row.video_quality)}</span>`:""}
+        <span class="nf-link-country">${flag(row.country)} ${esc(row.country||"")}</span>
+      </div>
+      <div class="nf-link-stats">
+        <span class="nf-stat">${ICON.users} <strong>0</strong>/${esc(streams)} đang dùng</span>
+        <span class="nf-stat">${ICON.clock} <strong>0</strong> lượt/60p</span>
+        <span class="nf-stat">${ICON.check} <strong>${esc(row.membership_status||row.status||"—")}</strong></span>
+      </div>
+      <div class="nf-link-details">${details}</div>
+      <div class="nf-verify-line">
+        ${ICON.check} ${row.is_subscribed?"Tài khoản có gói":"Tài khoản free"}
+        <span>•</span><span>${esc(row.status||"pending")}</span><span>• ${esc(when)}</span>
+      </div>
+      <div class="assign-slot"></div>
+    </div>
+    <div class="nf-link-right">
+      <span class="nf-load-badge low">${ICON.dot} Sẵn sàng</span>
+      <button class="btn btn-sm nf-btn-pc">Tạo link</button>
+    </div>`;
+
+  const slot = $(".assign-slot", el);
+  const btn = $(".nf-btn-pc", el);
+  btn.addEventListener("click", ()=>createLink(row, slot, btn));
+  return el;
+}
+
+async function createLink(row, slot, btn){
+  btn.disabled=true;
+  slot.innerHTML = `
+    <div class="nf-assignment is-pending animate-in">
+      <div class="nf-assignment-info">
+        <span style="display:inline-flex;align-items:center;gap:6px">${ICON.monitor} Đang tạo link <strong>#${shortId(row.id)}</strong></span>
+        <span class="nf-assignment-status"><span class="spinner"></span> Chờ tạo login token…</span>
+      </div>
+      <div class="nf-assignment-actions">
+        <button class="btn btn-secondary btn-sm" disabled><span class="spinner"></span> Đang tạo</button>
+        <button class="btn btn-secondary btn-sm cancel">${ICON.x} Hủy</button>
+      </div>
+    </div>`;
+  $(".cancel",slot).addEventListener("click",()=>{slot.innerHTML="";btn.disabled=false;});
+
+  try{
+    const res = await apiCall("create-link",{id:row.id});
+    const data = await res.json();
+    if(!res.ok || data.error) throw new Error(data.error||("HTTP "+res.status));
+    renderDone(row, slot, btn, data);
+  }catch(err){
+    slot.innerHTML = `<div class="nf-assignment is-error animate-in">
+      <div class="nf-assignment-info"><span style="color:#ff9a9a">✕ Lỗi tạo link: ${esc(err.message)}</span></div>
+      <div class="nf-assignment-actions"><button class="btn btn-secondary btn-sm retry">Thử lại</button></div></div>`;
+    $(".retry",slot).addEventListener("click",()=>createLink(row,slot,btn));
+    btn.disabled=false;
+  }
+}
+
+function renderDone(row, slot, btn, data){
+  slot.innerHTML = `
+    <div class="nf-assignment is-done animate-in">
+      <div class="nf-assignment-info">
+        <span class="nf-assignment-status">${ICON.check} Đã tạo login token</span>
+        <span style="display:inline-flex;align-items:center;gap:6px">${ICON.clock} <span class="mono validtill">${data.expires_at_utc?("hết hạn: "+esc(data.expires_at_utc)):"—"}</span></span>
+      </div>
+      <div class="nf-assignment-actions">
+        <button class="btn btn-sm btn-copy pc">${ICON.copy} Copy link PC</button>
+        <button class="btn btn-sm btn-copy mb">${ICON.phone} Copy link ĐT</button>
+        <button class="btn btn-secondary btn-sm release">${ICON.x} Trả link</button>
+      </div>
+    </div>`;
+  $(".pc",slot).addEventListener("click",()=>{navigator.clipboard.writeText(data.pc);toast("Đã copy link PC");});
+  $(".mb",slot).addEventListener("click",()=>{navigator.clipboard.writeText(data.mobile);toast("Đã copy link ĐT");});
+  $(".release",slot).addEventListener("click",()=>{slot.innerHTML="";btn.disabled=false;});
+  btn.disabled=false;
+}
+
+async function load(){
+  const box=$("#links");
+  box.innerHTML='<div class="empty">Đang tải…</div>';
+  try{
+    let res;
+    try{
+      res=await apiCall("links");
+    }catch(netErr){
+      throw new Error(netErr.message.includes("token") ? netErr.message : `Không kết nối được backend (${EDGE_URL}).`);
+    }
+    const text=await res.text();
+    let data;
+    try{ data=JSON.parse(text); }
+    catch(_){ throw new Error("Backend trả về dữ liệu không hợp lệ."); }
+    if(!res.ok||data.error) throw new Error(data.error||("HTTP "+res.status));
+    const links=data.links||[];
+    $("#countPill").textContent=links.length+" link";
+    if(!links.length){box.innerHTML='<div class="empty">Chưa có cookie nào trong Supabase.<br>Chạy <b>python supa_upload.py</b> để nạp cookie trước.</div>';return;}
+    box.innerHTML="";
+    links.forEach(r=>box.appendChild(card(r)));
+  }catch(err){
+    box.innerHTML=`<div class="error-box"><b>Không tải được dữ liệu</b><br>${esc(err.message)}</div>`;
+  }
+}
+$("#refreshBtn").addEventListener("click",load);
+$("#tokenBtn").addEventListener("click",()=>{ resetAccessToken(); getAccessToken(); load(); });
+load();
+</script>
+</body>
+</html>
