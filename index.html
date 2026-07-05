@@ -6,26 +6,31 @@
 <title>Netflix Link Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0b0f; --panel:#16161d; --panel2:#1d1d26; --line:#2a2a36;
-    --text:#f3f3f7; --muted:#9a9aa8; --red:#e50914; --red2:#ff2b36;
-    --green:#39d98a; --amber:#f5a524; --blue:#5b8cff;
+    --bg:#0a0a0f; --panel:#15151e; --panel2:#1a1a25; --line:#ff1e3c1f;
+    --text:#f0f0f5; --muted:#8b8b9e; --red:#f43f5e; --red2:#fb7185; --red-dark:#e11d48;
+    --green:#14b8a6; --amber:#f97316; --blue:#3b82f6;
+    --font-body:'Inter',-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    --font-display:'Space Grotesk','Inter',sans-serif;
   }
   *{box-sizing:border-box}
   body{
-    margin:0;
+    margin:0; background:var(--bg); color:var(--text);
+    font:14px/1.55 var(--font-body); min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
     background:
-      radial-gradient(1000px 520px at 50% -8%, rgba(229,9,20,0.22), transparent 55%),
-      radial-gradient(800px 500px at 85% 10%, rgba(120,20,60,0.16), transparent 60%),
-      var(--bg);
-    color:var(--text); font:14px/1.55 'Be Vietnam Pro',-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    min-height:100vh;
+      radial-gradient(ellipse at 50% 30%, rgba(244,63,94,0.10) 0%, transparent 70%),
+      linear-gradient(rgba(244,63,94,0.016) 1px, transparent 1px) 0 0/60px 60px,
+      linear-gradient(90deg, rgba(244,63,94,0.016) 1px, transparent 1px) 0 0/60px 60px;
   }
   .wrap{max-width:1100px; margin:0 auto; padding:24px 16px 60px}
   header.top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px}
-  .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px; font-size:18px}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px; font-size:18px; font-family:'Be Vietnam Pro',var(--font-display)}
   .brand .dot{width:10px;height:20px;background:var(--red);border-radius:2px;box-shadow:0 0 14px var(--red)}
   .top-actions{display:flex;gap:8px;align-items:center}
   .count-pill{background:var(--panel); border:1px solid var(--line); color:var(--muted); padding:6px 12px; border-radius:999px; font-size:12px}
@@ -36,36 +41,34 @@
   .btn:disabled{opacity:.6;cursor:not-allowed}
   .btn-sm{padding:6px 11px;font-size:12px}
   .btn-secondary{background:transparent}
-  .nf-btn-pc{background:linear-gradient(180deg,var(--red2),var(--red));border-color:transparent;color:#fff;
-    box-shadow:0 6px 18px -8px var(--red)}
-  .nf-btn-pc:hover{filter:brightness(1.08)}
-  .btn-copy{background:#20202a}
-  .btn-copy.pc{border-color:#33415f}
-  .btn-copy.mb{border-color:#3a2f52}
+  .nf-btn-pc{background:linear-gradient(135deg,var(--red-dark),var(--red),var(--red2));border-color:transparent;color:#fff;
+    box-shadow:0 4px 15px rgba(244,63,94,0.3)}
+  .nf-btn-pc:hover{filter:brightness(1.1);box-shadow:0 0 10px rgba(244,63,94,0.4),0 0 40px rgba(244,63,94,0.1)}
+  .btn-copy{background:rgba(244,63,94,0.08);border-color:rgba(244,63,94,0.2);color:var(--red2)}
+  .btn-copy:hover{background:rgba(244,63,94,0.15);border-color:rgba(244,63,94,0.4)}
 
   /* card */
   .nf-link-item{display:flex;gap:16px;justify-content:space-between;
-    background:rgba(26,26,34,0.45);
-    backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
-    border:1px solid rgba(255,255,255,0.09);
-    border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden;
-    box-shadow:0 8px 30px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
-    transition:border-color .22s ease, box-shadow .22s ease, transform .22s ease}
-  .nf-link-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);opacity:.85}
+    background:linear-gradient(145deg,rgba(255,30,60,0.04),rgba(15,15,25,0.8));
+    backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);
+    border:1px solid var(--line);
+    border-radius:16px;padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden;
+    box-shadow:0 8px 30px -14px rgba(0,0,0,0.6);
+    transition:border-color .25s ease, box-shadow .25s ease, transform .25s ease}
   .nf-link-item:hover{
-    border-color:rgba(229,9,20,0.75);
-    box-shadow:0 0 0 1px rgba(229,9,20,0.45), 0 12px 40px -10px rgba(229,9,20,0.4);
-    transform:translateY(-2px)}
+    border-color:rgba(244,63,94,0.4);
+    box-shadow:0 0 20px rgba(244,63,94,0.15), 0 0 60px rgba(244,63,94,0.05);
+    transform:translateY(-3px)}
   .nf-link-body{flex:1;min-width:0}
   .nf-link-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:12px;min-width:120px}
 
   .nf-link-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-  .nf-link-label{font-weight:800;font-size:15px}
-  .badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px;letter-spacing:.4px;text-transform:uppercase}
-  .badge-vip{background:linear-gradient(180deg,#ffd76a,#f5a524);color:#3a2600}
-  .badge-std{background:#2b3a55;color:#bcd2ff}
-  .badge-free{background:#333;color:#bbb}
-  .nf-quality-badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;background:#12233a;color:#7fd1ff;border:1px solid #1e3a5c}
+  .nf-link-label{font-weight:700;font-size:15px;font-family:var(--font-display)}
+  .badge{font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px;letter-spacing:.3px;text-transform:uppercase;display:inline-flex;align-items:center}
+  .badge-vip{color:var(--red2);background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.28)}
+  .badge-std{color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25)}
+  .badge-free{color:var(--muted);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09)}
+  .nf-quality-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25)}
   .nf-link-country{font-size:12px;color:var(--muted);margin-left:auto}
 
   .nf-link-stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;color:var(--muted);font-size:12px}
@@ -75,9 +78,9 @@
 
   .nf-link-details{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:12px}
   .nf-link-details span{display:flex;flex-direction:column;gap:3px;min-width:0;
-    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
-    border-radius:10px;padding:8px 11px;transition:background .18s,border-color .18s}
-  .nf-link-details span:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12)}
+    background:rgba(255,255,255,0.025);border:1px solid rgba(244,63,94,0.08);
+    border-radius:10px;padding:9px 12px;transition:background .18s,border-color .18s}
+  .nf-link-details span:hover{background:rgba(244,63,94,0.05);border-color:rgba(244,63,94,0.18)}
   .nf-link-details span strong{color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px}
   .nf-link-details span em{font-style:normal;color:var(--text);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
@@ -87,8 +90,8 @@
   .nf-verify-line span{color:var(--muted)}
 
   .nf-load-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px}
-  .nf-load-badge.low{background:#123020;color:var(--green)}
-  .nf-load-badge.mid{background:#3a2f10;color:var(--amber)}
+  .nf-load-badge.low{background:rgba(20,184,166,0.12);color:var(--green)}
+  .nf-load-badge.mid{background:rgba(249,115,22,0.12);color:var(--amber)}
   .nf-load-badge .load-dot{color:currentColor}
 
   /* assignment / pending */
@@ -121,8 +124,8 @@
   /* access token gate */
   .gate{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;
     background:
-      radial-gradient(900px 500px at 50% -5%, rgba(229,9,20,0.28), transparent 58%),
-      radial-gradient(700px 500px at 82% 15%, rgba(140,20,70,0.2), transparent 60%),
+      radial-gradient(900px 500px at 50% -5%, rgba(244,63,94,0.28), transparent 58%),
+      radial-gradient(700px 500px at 82% 15%, rgba(190,18,60,0.2), transparent 60%),
       #08080c;}
   .gate.hidden{display:none}
   .gate-card{width:100%;max-width:390px;text-align:center;
@@ -133,12 +136,12 @@
   .gate-badge{width:46px;height:46px;margin:0 auto 16px;border-radius:14px;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(180deg,var(--red2),var(--red));box-shadow:0 10px 26px -8px var(--red)}
   .gate-badge span{width:8px;height:20px;background:#fff;border-radius:2px}
-  .gate-title{font-size:23px;font-weight:800;margin:0 0 6px;letter-spacing:.2px}
+  .gate-title{font-size:23px;font-weight:800;margin:0 0 6px;letter-spacing:.2px;font-family:'Be Vietnam Pro',var(--font-display)}
   .gate-title b{background:linear-gradient(90deg,var(--red2),#ff6a75);-webkit-background-clip:text;background-clip:text;color:transparent}
   .gate-sub{color:var(--muted);font-size:13px;margin:0 0 22px}
   .gate-input{width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--line);
     background:rgba(10,10,16,0.7);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .18s,box-shadow .18s}
-  .gate-input:focus{border-color:var(--red2);box-shadow:0 0 0 3px rgba(229,9,20,0.18)}
+  .gate-input:focus{border-color:var(--red2);box-shadow:0 0 0 3px rgba(244,63,94,0.18)}
   .gate-err{color:#ff9a9a;font-size:12.5px;min-height:18px;margin:9px 0 3px}
   .gate-btn{width:100%;justify-content:center;padding:13px;font-size:14px;margin-top:6px}
 
