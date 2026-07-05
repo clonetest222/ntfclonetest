@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Netflix Link Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b0b0f; --panel:#16161d; --panel2:#1d1d26; --line:#2a2a36;
@@ -12,8 +15,12 @@
   }
   *{box-sizing:border-box}
   body{
-    margin:0; background:radial-gradient(1200px 600px at 50% -10%,#1a1a24 0,var(--bg) 60%);
-    color:var(--text); font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    margin:0;
+    background:
+      radial-gradient(1000px 520px at 50% -8%, rgba(229,9,20,0.22), transparent 55%),
+      radial-gradient(800px 500px at 85% 10%, rgba(120,20,60,0.16), transparent 60%),
+      var(--bg);
+    color:var(--text); font:14px/1.55 'Be Vietnam Pro',-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
     min-height:100vh;
   }
   .wrap{max-width:1100px; margin:0 auto; padding:24px 16px 60px}
@@ -38,9 +45,17 @@
 
   /* card */
   .nf-link-item{display:flex;gap:16px;justify-content:space-between;
-    background:linear-gradient(180deg,var(--panel),#131319);border:1px solid var(--line);
-    border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden}
-  .nf-link-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+    background:rgba(26,26,34,0.45);
+    backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden;
+    box-shadow:0 8px 30px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+    transition:border-color .22s ease, box-shadow .22s ease, transform .22s ease}
+  .nf-link-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);opacity:.85}
+  .nf-link-item:hover{
+    border-color:rgba(229,9,20,0.75);
+    box-shadow:0 0 0 1px rgba(229,9,20,0.45), 0 12px 40px -10px rgba(229,9,20,0.4);
+    transform:translateY(-2px)}
   .nf-link-body{flex:1;min-width:0}
   .nf-link-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:12px;min-width:120px}
 
@@ -58,10 +73,13 @@
   .nf-stat strong{color:var(--text)}
   .nf-stat svg{color:var(--muted)}
 
-  .nf-link-details{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 18px;margin-bottom:10px}
-  .nf-link-details span{font-size:12.5px;color:#cfcfda;display:flex;gap:6px;min-width:0}
-  .nf-link-details span strong{color:var(--muted);font-weight:600;white-space:nowrap}
-  .nf-link-details span em{font-style:normal;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nf-link-details{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+  .nf-link-details span{display:flex;flex-direction:column;gap:3px;min-width:0;
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
+    border-radius:10px;padding:8px 11px;transition:background .18s,border-color .18s}
+  .nf-link-details span:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12)}
+  .nf-link-details span strong{color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px}
+  .nf-link-details span em{font-style:normal;color:var(--text);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
   .nf-verify-line{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11.5px;color:var(--green);
     border-top:1px dashed var(--line);padding-top:9px}
@@ -99,10 +117,45 @@
   .empty,.error-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
   .error-box{border-color:#4a1f22;color:#ffb4b4}
   .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+
+  /* access token gate */
+  .gate{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:
+      radial-gradient(900px 500px at 50% -5%, rgba(229,9,20,0.28), transparent 58%),
+      radial-gradient(700px 500px at 82% 15%, rgba(140,20,70,0.2), transparent 60%),
+      #08080c;}
+  .gate.hidden{display:none}
+  .gate-card{width:100%;max-width:390px;text-align:center;
+    background:rgba(24,24,32,0.6);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);
+    border:1px solid rgba(255,255,255,0.1);border-radius:22px;padding:34px 30px;
+    box-shadow:0 24px 70px -22px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.07);
+    animation:fade .3s ease both}
+  .gate-badge{width:46px;height:46px;margin:0 auto 16px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,var(--red2),var(--red));box-shadow:0 10px 26px -8px var(--red)}
+  .gate-badge span{width:8px;height:20px;background:#fff;border-radius:2px}
+  .gate-title{font-size:23px;font-weight:800;margin:0 0 6px;letter-spacing:.2px}
+  .gate-title b{background:linear-gradient(90deg,var(--red2),#ff6a75);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .gate-sub{color:var(--muted);font-size:13px;margin:0 0 22px}
+  .gate-input{width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(10,10,16,0.7);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .18s,box-shadow .18s}
+  .gate-input:focus{border-color:var(--red2);box-shadow:0 0 0 3px rgba(229,9,20,0.18)}
+  .gate-err{color:#ff9a9a;font-size:12.5px;min-height:18px;margin:9px 0 3px}
+  .gate-btn{width:100%;justify-content:center;padding:13px;font-size:14px;margin-top:6px}
+
   @media(max-width:640px){.nf-link-item{flex-direction:column}.nf-link-right{flex-direction:row;align-items:center;min-width:0}}
 </style>
 </head>
 <body>
+<div id="gate" class="gate hidden">
+  <div class="gate-card">
+    <div class="gate-badge"><span></span></div>
+    <h1 class="gate-title">Netflix <b>Link Manager</b></h1>
+    <p class="gate-sub">Nhập access token để tiếp tục</p>
+    <input id="gateInput" class="gate-input" type="password" placeholder="Access token" autocomplete="off" spellcheck="false">
+    <div id="gateErr" class="gate-err"></div>
+    <button id="gateBtn" class="btn nf-btn-pc gate-btn">Vào</button>
+  </div>
+</div>
 <div class="wrap">
   <header class="top">
     <div class="brand"><span class="dot"></span> Netflix Link Manager</div>
@@ -123,28 +176,37 @@
 <div class="toast" id="toast"></div>
 
 <script>
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 // Backend = Supabase Edge Function "netflix-api" (works from GitHub Pages / anywhere).
 const EDGE_URL = "https://wbpjunpcmuvhndnanhgi.supabase.co/functions/v1/netflix-api";
 
-// Access control without login: a shared token entered once, kept in localStorage,
-// sent with every request. Wrong/absent token -> the function returns 401.
-function getAccessToken(){
-  let t = localStorage.getItem("nf_access_token");
-  if(!t){ t = (prompt("Nhập access token để dùng trang này:")||"").trim(); if(t) localStorage.setItem("nf_access_token", t); }
-  return t;
+// Access control without login: a shared token entered once (via the gate screen),
+// kept in localStorage, sent with every request. Wrong/absent -> function 401.
+function storedToken(){ return localStorage.getItem("nf_access_token") || ""; }
+function showGate(msg){
+  $("#gateErr").textContent = msg || "";
+  $("#gate").classList.remove("hidden");
+  const inp = $("#gateInput"); inp.value = ""; setTimeout(()=>inp.focus(), 60);
 }
-function resetAccessToken(){ localStorage.removeItem("nf_access_token"); }
+function hideGate(){ $("#gate").classList.add("hidden"); }
+function submitGate(){
+  const t = $("#gateInput").value.trim();
+  if(!t){ $("#gateErr").textContent = "Vui lòng nhập access token"; return; }
+  localStorage.setItem("nf_access_token", t);
+  hideGate();
+  load();
+}
 async function apiCall(action, payload){
   const res = await fetch(EDGE_URL, {
     method:"POST",
-    headers:{"Content-Type":"application/json","x-access-token":getAccessToken()},
+    headers:{"Content-Type":"application/json","x-access-token":storedToken()},
     body: JSON.stringify({action, ...(payload||{})}),
   });
-  if(res.status===401){ resetAccessToken(); throw new Error("Sai hoặc thiếu access token. Bấm \"Đổi token\" rồi nhập lại."); }
+  if(res.status===401){ localStorage.removeItem("nf_access_token"); showGate("Sai access token, thử lại"); throw new Error("__gate__"); }
   return res;
 }
-const $ = (s,el=document)=>el.querySelector(s);
-const esc = s => String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1800);}
 
@@ -273,11 +335,13 @@ function renderDone(row, slot, btn, data){
         <span style="display:inline-flex;align-items:center;gap:6px">${ICON.clock} <span class="mono validtill">${data.expires_at_utc?("hết hạn: "+esc(data.expires_at_utc)):"—"}</span></span>
       </div>
       <div class="nf-assignment-actions">
+        <button class="btn btn-sm nf-btn-pc openlink"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg> Mở link</button>
         <button class="btn btn-sm btn-copy pc">${ICON.copy} Copy link PC</button>
         <button class="btn btn-sm btn-copy mb">${ICON.phone} Copy link ĐT</button>
         <button class="btn btn-secondary btn-sm release">${ICON.x} Trả link</button>
       </div>
     </div>`;
+  $(".openlink",slot).addEventListener("click",()=>{window.open(data.pc,"_blank","noopener");toast("Đang mở link…");});
   $(".pc",slot).addEventListener("click",()=>{navigator.clipboard.writeText(data.pc);toast("Đã copy link PC");});
   $(".mb",slot).addEventListener("click",()=>{navigator.clipboard.writeText(data.mobile);toast("Đã copy link ĐT");});
   $(".release",slot).addEventListener("click",()=>{slot.innerHTML="";btn.disabled=false;});
@@ -292,7 +356,8 @@ async function load(){
     try{
       res=await apiCall("links");
     }catch(netErr){
-      throw new Error(netErr.message.includes("token") ? netErr.message : `Không kết nối được backend (${EDGE_URL}).`);
+      if(netErr.message==="__gate__") return;   // gate is showing, stop quietly
+      throw new Error("Không kết nối được backend.");
     }
     const text=await res.text();
     let data;
@@ -308,9 +373,14 @@ async function load(){
     box.innerHTML=`<div class="error-box"><b>Không tải được dữ liệu</b><br>${esc(err.message)}</div>`;
   }
 }
+
+$("#gateBtn").addEventListener("click",submitGate);
+$("#gateInput").addEventListener("keydown",e=>{ if(e.key==="Enter") submitGate(); });
 $("#refreshBtn").addEventListener("click",load);
-$("#tokenBtn").addEventListener("click",()=>{ resetAccessToken(); getAccessToken(); load(); });
-load();
+$("#tokenBtn").addEventListener("click",()=>{ localStorage.removeItem("nf_access_token"); showGate(); });
+
+// start: show the gate if no token yet, otherwise load straight away
+if(storedToken()){ hideGate(); load(); } else { showGate(); }
 </script>
 </body>
 </html>
