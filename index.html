@@ -145,6 +145,41 @@
   .gate-err{color:#ff9a9a;font-size:12.5px;min-height:18px;margin:9px 0 3px}
   .gate-btn{width:100%;justify-content:center;padding:13px;font-size:14px;margin-top:6px}
 
+  /* menu tabs */
+  .menu{display:flex;gap:6px;margin-bottom:18px;padding:5px;border-radius:14px;
+    background:rgba(255,255,255,0.03);border:1px solid var(--line);width:fit-content}
+  .menu-item{display:inline-flex;align-items:center;gap:7px;border:none;background:transparent;
+    color:var(--muted);padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:600;
+    font-family:inherit;transition:.18s}
+  .menu-item:hover{color:var(--text)}
+  .menu-item.active{background:linear-gradient(135deg,var(--red-dark),var(--red));color:#fff;
+    box-shadow:0 4px 14px rgba(244,63,94,0.3)}
+  .hidden{display:none}
+
+  /* TV login */
+  .tv-card{max-width:600px;margin:0 auto;padding:28px 26px;border-radius:16px;
+    background:linear-gradient(145deg,rgba(255,30,60,0.05),rgba(15,15,25,0.85));
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line)}
+  .tv-title{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:6px}
+  .tv-title svg{color:var(--red2)}
+  .tv-desc{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+  .tv-input-group{display:flex;gap:10px;flex-wrap:wrap}
+  .tv-code-input{flex:1;min-width:180px;padding:14px 16px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(10,10,16,0.7);color:var(--text);font-size:18px;font-weight:700;letter-spacing:4px;
+    text-transform:uppercase;text-align:center;font-family:ui-monospace,Menlo,Consolas,monospace;outline:none;transition:.18s}
+  .tv-code-input:focus{border-color:var(--red2);box-shadow:0 0 0 3px rgba(244,63,94,0.18)}
+  .tv-code-input::placeholder{letter-spacing:normal;text-transform:none;font-family:var(--font-body);font-weight:500;color:var(--muted)}
+  .tv-btn{padding:14px 24px;font-size:14px}
+  .tv-result{min-height:8px;margin-top:14px}
+  .tv-result .ok{color:var(--green)}
+  .tv-result .err{color:#ff9a9a}
+  .tv-result .box{display:flex;align-items:center;gap:9px;font-size:13.5px;padding:12px 14px;border-radius:11px;
+    border:1px solid var(--line);background:rgba(255,255,255,0.03)}
+  .tv-guide{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+  .tv-guide h4{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin-bottom:10px;color:var(--text)}
+  .tv-guide h4 svg{color:var(--red2)}
+  .tv-guide ol{margin:0;padding-left:20px;color:var(--muted);font-size:13px;line-height:1.9}
+
   @media(max-width:640px){
     .nf-link-item{flex-direction:column;padding:15px 15px}
     .nf-link-right{flex-direction:row;align-items:center;justify-content:space-between;min-width:0;width:100%}
@@ -185,7 +220,50 @@
       </button>
     </div>
   </header>
-  <div id="links"><div class="empty">Đang tải…</div></div>
+  <nav class="menu">
+    <button class="menu-item active" data-tab="links">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+      Links
+    </button>
+    <button class="menu-item" data-tab="tv">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
+      TV Login
+    </button>
+  </nav>
+
+  <section id="tab-links">
+    <div id="links"><div class="empty">Đang tải…</div></div>
+  </section>
+
+  <section id="tab-tv" class="hidden">
+    <div class="tv-card">
+      <h3 class="tv-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
+        Đăng Nhập Netflix Trên TV
+      </h3>
+      <p class="tv-desc">Mở Netflix trên TV → Chọn đăng nhập → Nhập mã 8 ký tự.</p>
+      <div class="tv-input-group">
+        <input id="tvCode" class="tv-code-input" maxlength="8" placeholder="Nhập mã 8 ký tự" autocomplete="off" spellcheck="false">
+        <button id="tvBtn" class="btn nf-btn-pc btn-lg tv-btn" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
+          Đăng Nhập TV
+        </button>
+      </div>
+      <div id="tvResult" class="tv-result"></div>
+      <div class="tv-guide">
+        <h4>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+          Hướng dẫn
+        </h4>
+        <ol>
+          <li>Mở ứng dụng Netflix trên TV</li>
+          <li>Chọn "Đăng nhập" → "Sign in on the web"</li>
+          <li>Ghi nhớ mã 8 ký tự hiển thị trên TV</li>
+          <li>Nhập mã vào ô ở trên và bấm đăng nhập</li>
+        </ol>
+      </div>
+    </div>
+  </section>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -195,6 +273,7 @@ const esc = s => String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 
 // Backend = Supabase Edge Function "netflix-api" (works from GitHub Pages / anywhere).
 const EDGE_URL = "https://wbpjunpcmuvhndnanhgi.supabase.co/functions/v1/netflix-api";
+const TV_EDGE_URL = "https://wbpjunpcmuvhndnanhgi.supabase.co/functions/v1/tv-login";
 
 // Access control without login: a shared token entered once (via the gate screen),
 // kept in localStorage, sent with every request. Wrong/absent -> function 401.
@@ -392,6 +471,68 @@ $("#gateBtn").addEventListener("click",submitGate);
 $("#gateInput").addEventListener("keydown",e=>{ if(e.key==="Enter") submitGate(); });
 $("#refreshBtn").addEventListener("click",load);
 $("#tokenBtn").addEventListener("click",()=>{ localStorage.removeItem("nf_access_token"); showGate(); });
+
+// ---- menu tabs ----
+document.querySelectorAll(".menu-item").forEach(mi=>{
+  mi.addEventListener("click",()=>{
+    document.querySelectorAll(".menu-item").forEach(x=>x.classList.remove("active"));
+    mi.classList.add("active");
+    const tab = mi.dataset.tab;
+    $("#tab-links").classList.toggle("hidden", tab!=="links");
+    $("#tab-tv").classList.toggle("hidden", tab!=="tv");
+  });
+});
+
+// ---- hidden dev mode: tap brand 5x, THEN click "Tải lại" 5x ----
+function isDev(){ return localStorage.getItem("nf_dev")==="1"; }
+let _dev={brand:0,refresh:0,armed:false,t:null};
+function _devReset(){ _dev.brand=0; _dev.refresh=0; _dev.armed=false; }
+function _devTick(){ clearTimeout(_dev.t); _dev.t=setTimeout(_devReset,4000); }
+$(".brand").addEventListener("click",()=>{
+  _devTick();
+  if(!_dev.armed && ++_dev.brand>=5){ _dev.armed=true; _dev.brand=0; }
+});
+$("#refreshBtn").addEventListener("click",()=>{
+  if(!_dev.armed) return;
+  _devTick();
+  if(++_dev.refresh>=5){
+    const on=!isDev(); localStorage.setItem("nf_dev",on?"1":"0");
+    toast(on?"Dev mode BẬT":"Dev mode TẮT"); _devReset();
+  }
+});
+
+// ---- TV login ----
+const tvCode=$("#tvCode"), tvBtn=$("#tvBtn"), tvResult=$("#tvResult");
+tvCode.addEventListener("input",()=>{
+  tvCode.value=tvCode.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8);
+  tvBtn.disabled=tvCode.value.length!==8;
+});
+tvCode.addEventListener("keydown",e=>{ if(e.key==="Enter" && !tvBtn.disabled) tvBtn.click(); });
+tvBtn.addEventListener("click",async ()=>{
+  const code=tvCode.value.trim();
+  if(code.length!==8) return;
+  tvBtn.disabled=true;
+  tvResult.innerHTML=`<div class="box"><span class="spinner"></span> Đang đăng nhập TV…</div>`;
+  try{
+    const res=await fetch(TV_EDGE_URL,{method:"POST",headers:{"Content-Type":"application/json","x-access-token":storedToken()},body:JSON.stringify({code})});
+    if(res.status===401){ localStorage.removeItem("nf_access_token"); showGate("Sai access token, thử lại"); throw new Error("__gate__"); }
+    const data=await res.json();
+    if(res.status>=500 && data.error && !data.cookie_email) throw new Error(data.error);
+    const okState=data.ok===true;
+    if(isDev()){
+      const head=okState?`${ICON.check} Đăng nhập TV thành công`:data.error?`${ICON.x} ${esc(data.error)}`:`${ICON.x} Chưa xong`;
+      tvResult.innerHTML=`<div class="box ${okState?'ok':'err'}"><div style="width:100%"><div>${head}${data.cookie_email?` · cookie: <b>${esc(data.cookie_email)}</b>`:''}</div><details style="margin-top:8px"><summary style="cursor:pointer;color:var(--red2)">Chi tiết (dev)</summary><pre class="mono" style="font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-all;margin-top:6px">${esc(JSON.stringify(data,null,2))}</pre></details></div></div>`;
+    }else{
+      tvResult.innerHTML=`<div class="box ${okState?'ok':'err'}">${okState?ICON.check+' Đăng nhập TV thành công':ICON.x+' Đăng nhập thất bại, thử lại mã khác'}</div>`;
+    }
+    if(okState) toast("Đăng nhập TV thành công");
+  }catch(err){
+    if(err.message==="__gate__"){ tvResult.innerHTML=""; }
+    else tvResult.innerHTML=`<div class="box err">${ICON.x} Lỗi: ${esc(err.message)}</div>`;
+  }finally{
+    tvBtn.disabled=tvCode.value.length!==8;
+  }
+});
 
 // start: show the gate if no token yet, otherwise load straight away
 if(storedToken()){ hideGate(); load(); } else { showGate(); }
