@@ -242,6 +242,7 @@
         Tạo link ngẫu nhiên
       </button>
     </div>
+    <div id="randomResult" class="tv-result"></div>
     <div id="links"><div class="empty">Đang tải…</div></div>
   </section>
 
@@ -477,12 +478,55 @@ function sortLinks(links){
     return String(b.created_at||"").localeCompare(String(a.created_at||""));  // mới thêm ưu tiên
   });
 }
-function randomCreate(){
-  const cards=[...$("#links").querySelectorAll(".nf-link-item")];
-  if(!cards.length){ toast("Chưa có link nào"); return; }
-  const el=cards[Math.floor(Math.random()*cards.length)];
-  el.scrollIntoView({behavior:"smooth",block:"center"});
-  const b=$(".nf-btn-pc",el); if(b && !b.disabled) b.click();
+let allLinks=[];
+function renderRandomDone(rr, data){
+  rr.innerHTML = `<div class="nf-assignment is-done animate-in">
+    <div class="nf-assignment-info">
+      <span class="nf-assignment-status">${ICON.check} Đã tạo login token</span>
+      <span style="display:inline-flex;align-items:center;gap:6px">${ICON.clock} <span class="mono">${data.expires_at_utc?("hết hạn: "+esc(data.expires_at_utc)):"—"}</span></span>
+    </div>
+    <div class="nf-assignment-actions">
+      <button class="btn btn-sm nf-btn-pc ro"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg> Mở link</button>
+      <button class="btn btn-sm btn-copy rpc">${ICON.copy} Copy link PC</button>
+      <button class="btn btn-sm btn-copy rmb">${ICON.phone} Copy link ĐT</button>
+      <button class="btn btn-secondary btn-sm rrel">${ICON.x} Trả link</button>
+    </div></div>`;
+  $(".ro",rr).addEventListener("click",()=>{window.open(data.pc,"_blank","noopener");toast("Đang mở link…");});
+  $(".rpc",rr).addEventListener("click",()=>{navigator.clipboard.writeText(data.pc);toast("Đã copy link PC");});
+  $(".rmb",rr).addEventListener("click",()=>{navigator.clipboard.writeText(data.mobile);toast("Đã copy link ĐT");});
+  $(".rrel",rr).addEventListener("click",()=>{rr.innerHTML="";});
+}
+async function randomCreate(){
+  const rr=$("#randomResult");
+  if(!allLinks.length){ toast("Chưa có link nào"); return; }
+  $("#randomBtn").disabled=true;
+  const tried=new Set();
+  const maxAttempts=Math.min(20, allLinks.length);
+  try{
+    for(let attempt=1; attempt<=maxAttempts; attempt++){
+      const pool=allLinks.filter(l=>!tried.has(l.id));
+      if(!pool.length) break;
+      const row=pool[Math.floor(Math.random()*pool.length)];
+      tried.add(row.id);
+      rr.innerHTML=`<div class="nf-assignment is-pending animate-in"><div class="nf-assignment-info"><span class="nf-assignment-status"><span class="spinner"></span> Đang tạo link ngẫu nhiên… (lần ${attempt})</span></div></div>`;
+      try{
+        const res=await apiCall("create-link",{id:row.id});
+        const data=await res.json();
+        if(!res.ok||data.error){
+          if(/token missing|not found/i.test(data.error||"")) continue;  // cookie chết → thử acc khác
+          throw new Error(data.error||("HTTP "+res.status));
+        }
+        renderRandomDone(rr, data);
+        return;
+      }catch(err){
+        if(err.message==="__gate__"){ rr.innerHTML=""; return; }
+        if(attempt>=maxAttempts){ rr.innerHTML=`<div class="nf-assignment is-error"><div class="nf-assignment-info"><span style="color:#ff9a9a">${ICON.x} ${esc(err.message)}</span></div></div>`; return; }
+      }
+    }
+    rr.innerHTML=`<div class="nf-assignment is-error"><div class="nf-assignment-info"><span style="color:#ff9a9a">${ICON.x} Đã thử ${maxAttempts} tài khoản, chưa cái nào tạo được link (cookie chết). Thử lại hoặc thêm cookie mới.</span></div></div>`;
+  }finally{
+    $("#randomBtn").disabled=false;
+  }
 }
 
 async function load(){
@@ -502,6 +546,7 @@ async function load(){
     catch(_){ throw new Error("Backend trả về dữ liệu không hợp lệ."); }
     if(!res.ok||data.error) throw new Error(data.error||("HTTP "+res.status));
     const links=sortLinks(data.links||[]);
+    allLinks=links;
     $("#countPill").textContent=links.length+" link";
     if(!links.length){box.innerHTML='<div class="empty">Chưa có cookie nào trong Supabase.<br>Chạy <b>python supa_upload.py</b> để nạp cookie trước.</div>';return;}
     box.innerHTML="";
